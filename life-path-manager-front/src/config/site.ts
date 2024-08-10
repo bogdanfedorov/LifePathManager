@@ -13,10 +13,6 @@ export const siteConfig = {
       href: "/docs",
     },
     {
-      label: "Pricing",
-      href: "/pricing",
-    },
-    {
       label: "Blog",
       href: "/blog",
     },
@@ -60,10 +56,11 @@ export const siteConfig = {
     },
   ],
   links: {
-    github: "https://github.com/nextui-org/nextui",
-    twitter: "https://twitter.com/getnextui",
-    docs: "https://nextui-docs-v2.vercel.app",
-    discord: "https://discord.gg/9b6yyZKmH4",
-    sponsor: "https://patreon.com/jrgarciadev",
+    github: "https://github.com/bogdanfedorov",
+    cv: "https://bogdanfedorov.github.io/CV/",
+    telegram: "@Bohdan_Fedorov_Web",
+    linkedin:
+      "https://www.linkedin.com/in/bohdan-fedorov-137636263/?locale=en_US",
+    djinni: "https://djinni.co/q/400b4e8e19/",
   },
 };
