@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@nextui-org/accordion": "^2.0.38",
+    "@nextui-org/autocomplete": "^2.1.5",
     "@nextui-org/button": "^2.0.37",
     "@nextui-org/date-picker": "^2.1.6",
     "@nextui-org/input": "^2.2.4",
@@ -24,6 +25,7 @@
     "@nextui-org/system": "^2.2.5",
     "@nextui-org/table": "^2.0.39",
     "@nextui-org/theme": "^2.2.9",
+    "@nextui-org/tooltip": "^2.0.39",
     "framer-motion": "^11.3.24",
     "mongodb": "^6.8.0",
     "next": "14.2.5",
