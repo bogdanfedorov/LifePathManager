@@ -17,7 +17,6 @@ export const siteConfig = {
       href: "links",
     },
   ],
-
   links: {
     github: {
       url: "https://github.com/bogdanfedorov",
