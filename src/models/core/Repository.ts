@@ -20,14 +20,13 @@ import {
   OnUpdateError,
 } from "./errors";
 import { IFindDto, IPagination } from "./types";
+import { pages } from "next/dist/build/templates/app-page";
 
 export class Repository<Model extends Document> {
   private readonly colectionName: string;
-  private readonly EntityClass: any;
 
-  constructor(colectionName: string, EntityClass: any) {
+  constructor(colectionName: string) {
     this.colectionName = colectionName;
-    this.EntityClass = EntityClass;
   }
 
   public async findOne(
@@ -48,7 +47,7 @@ export class Repository<Model extends Document> {
       throw NotFound;
     }
 
-    return new this.EntityClass(entity);
+    return entity;
   }
 
   public async find(filter: Filter<Document> = {}, options?: FindOptions) {
@@ -65,17 +64,13 @@ export class Repository<Model extends Document> {
     return entitys;
   }
 
-  public async findAndCast(
-    filter: Filter<Document> = {},
-    options?: FindOptions,
-  ) {
-    const entitys = await this.find(filter, options);
-
-    return this.castToArrayObjects(entitys);
-  }
-
   public async create(entity: Model): Promise<Model> {
     const col = await this.getCollection();
+
+    Object.assign(entity, {
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     try {
       await col.insertOne(entity);
@@ -137,9 +132,7 @@ export class Repository<Model extends Document> {
   public async findById(id: ObjectId | string): Promise<Model> {
     const filter = { _id: this.castToObjectId(id) };
 
-    const entity = await this.findOne(filter);
-
-    return this.castToObject(entity);
+    return this.findOne(filter);
   }
 
   public async pagination(findDto: IFindDto): Promise<IPagination<Model>> {
@@ -158,29 +151,16 @@ export class Repository<Model extends Document> {
     const filter = {};
 
     const count = await this.count(filter);
-    const entitys = await this.findAndCast(filter, options);
+    const entitys = await this.find(filter, options);
 
+    const maxPages = Math.ceil(count / limit);
     return {
       data: entitys,
       metadata: {
-        limit: limit,
-        page: page,
-        total: count,
+        page,
+        maxPages,
       },
     };
-  }
-
-  private castToObject(rawEntity: Model): Model {
-    return new this.EntityClass(rawEntity);
-  }
-
-  private castToArrayObjects(rawEntity: Array<Model>): Model[] {
-    const entityArray: Array<Model> = [];
-    for (const entiry of rawEntity) {
-      entityArray.push(this.castToObject(entiry));
-    }
-
-    return entityArray;
   }
 
   private async getCollection(): Promise<Collection<Document>> {

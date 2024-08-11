@@ -25,9 +25,14 @@ export interface ITotal {
   total: number;
 }
 
+export interface PaginationMetadata {
+  page: number;
+  maxPages: number;
+}
+
 export interface IPagination<D> {
   data: D[];
-  metadata: IPaginateQueryDto & ITotal;
+  metadata: PaginationMetadata;
 }
 
 // TODO: change to your list of Collection
