@@ -1,11 +1,37 @@
-import { createModel, Models } from "@/types";
+import {
+  EntityConfig,
+  EntityConfigKeys,
+  EntityFieldConfigType,
+} from "@/features/entity";
 
 export type UserConfig = typeof userConfig;
 
+export type Entitys = keyof typeof userConfig.entites;
+
+type mutationInstruction = (thisObject: EntityConfig) => EntityFieldConfigType;
+
+const createEntityConfig = (dto: {
+  [key in EntityConfigKeys]: mutationInstruction | object;
+}): EntityConfig => {
+  const thisObject: EntityConfig = {
+    table: {},
+    form: {},
+  };
+
+  Object.entries(dto).forEach(([key, func]) => {
+    if (typeof func === "function") {
+      Object.assign(thisObject, { [key]: func(thisObject) });
+    } else {
+      Object.assign(thisObject, { [key]: func });
+    }
+  });
+
+  return thisObject;
+};
 export const userConfig = {
   entites: {
-    ...createModel(Models.vacancy, {
-      form: () => ({
+    vacancy: createEntityConfig({
+      form: {
         companyName: {
           label: "Company name",
           type: "text",
@@ -46,16 +72,16 @@ export const userConfig = {
           type: "select",
           variants: ["bulldogjob"],
         },
-      }),
+      },
       table: (thisObject) => ({
         ...thisObject.form,
         createdAt: {
           label: "Created at",
-          type: "Date",
+          type: "date",
         },
         updatedAt: {
           label: "Updated at",
-          type: "Date",
+          type: "date",
         },
         actions: {
           label: "Actions",

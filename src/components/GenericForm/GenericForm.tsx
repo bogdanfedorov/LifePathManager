@@ -1,11 +1,13 @@
 "use client";
-import { ActionCreate } from "@/hooks/serverActions";
 import {
-  GenericConfigType,
+  ActionCreate,
+  EntityFieldConfigType,
+  EntityNameType,
+  isMoney,
+  isSelectableType,
+  isTextableFieldType,
   SelectableField,
-  SelectableTypes,
-  TextableTypes,
-} from "@/types";
+} from "@/features/entity";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/autocomplete";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
@@ -14,7 +16,7 @@ import { FC } from "react";
 import { useFormStatus } from "react-dom";
 
 interface FormProps {
-  config: GenericConfigType;
+  config: EntityFieldConfigType;
   labelSubmitButton: string;
 }
 
@@ -24,19 +26,17 @@ const Form: FC<FormProps> = ({ config, labelSubmitButton }) => {
   return (
     <>
       {Object.entries(config).map(([key, value]) => {
-        if (TextableTypes.includes(value.type)) {
-          const isMoney = value.type === "money";
-
+        if (isTextableFieldType(value.type)) {
           return (
             <Input
-              type={isMoney ? "number" : value.type}
+              type={isMoney(value.type) ? "number" : value.type}
               label={value.label}
               key={key}
               name={key}
               variant="underlined"
               disabled={pending}
               endContent={
-                isMoney && (
+                isMoney(value.type) && (
                   <div className="pointer-events-none flex items-center">
                     <span className="text-default-400 text-small">$</span>
                   </div>
@@ -45,7 +45,7 @@ const Form: FC<FormProps> = ({ config, labelSubmitButton }) => {
             />
           );
         }
-        if (SelectableTypes.includes(value.type)) {
+        if (isSelectableType(value.type)) {
           return (
             <Autocomplete
               label={value.label}
@@ -72,14 +72,15 @@ const Form: FC<FormProps> = ({ config, labelSubmitButton }) => {
 };
 
 export interface GenericFormProps extends FormProps {
+  entityName: EntityNameType;
   submiteAction: ActionCreate;
 }
 
 export const GenericForm: FC<GenericFormProps> = (props) => {
-  const { submiteAction, ...formProps } = props;
+  const { entityName, submiteAction, ...formProps } = props;
   return (
     <form
-      action={submiteAction}
+      action={(formData) => submiteAction(entityName, formData)}
       className="border-small px-2 py-2 rounded-small border-default-200 dark:border-default-100 flex flex-col gap-2"
     >
       <Form {...formProps} />

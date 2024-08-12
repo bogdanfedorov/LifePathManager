@@ -20,7 +20,6 @@ import {
   OnUpdateError,
 } from "./errors";
 import { IFindDto, IPagination } from "./types";
-import { pages } from "next/dist/build/templates/app-page";
 
 export class Repository<Model extends Document> {
   private readonly colectionName: string;

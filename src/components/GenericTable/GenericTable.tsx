@@ -1,7 +1,14 @@
 "use client";
-import { ActionDelete, ActionGetPaginationList } from "@/hooks/serverActions";
+import {
+  ActionDelete,
+  ActionGetPaginationList,
+  EntityFieldConfigType,
+  EntityNameType,
+  isDate,
+  isMoney,
+  isUrl,
+} from "@/features/entity";
 import { IFindDto, PaginationMetadata } from "@/models/core";
-import { GenericConfigType } from "@/types";
 import { DatePicker } from "@nextui-org/date-picker";
 import { Link } from "@nextui-org/link";
 import { Pagination } from "@nextui-org/pagination";
@@ -20,7 +27,8 @@ import { DeleteIcon, EditIcon, EyeIcon } from "../icons";
 import { DateFormat, USDollarFormater } from "./formater";
 
 interface GenericTableProps {
-  config: GenericConfigType;
+  entityName: EntityNameType;
+  config: EntityFieldConfigType;
   ariaLabel: string;
 
   getPaginationList: ActionGetPaginationList;
@@ -28,7 +36,8 @@ interface GenericTableProps {
 }
 
 export const GenericTable: FC<GenericTableProps> = (props) => {
-  const { config, ariaLabel, getPaginationList, deleteItem } = props;
+  const { entityName, config, ariaLabel, getPaginationList, deleteItem } =
+    props;
 
   const [findDto, setFindDto] = useReducer(
     (state: IFindDto, action: IFindDto) => ({ ...state, ...action }),
@@ -47,7 +56,7 @@ export const GenericTable: FC<GenericTableProps> = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    getPaginationList(findDto)
+    getPaginationList(entityName, findDto)
       .then((data) => {
         setData(data.data);
         setPaginationMetadata(data.metadata);
@@ -75,7 +84,7 @@ export const GenericTable: FC<GenericTableProps> = (props) => {
               onClick={() => {
                 const id = entity["_id" as keyof object];
                 setData((oldData) => oldData.filter((data) => data._id !== id));
-                deleteItem(id);
+                deleteItem(entityName, id);
               }}
             >
               <DeleteIcon />
@@ -84,22 +93,22 @@ export const GenericTable: FC<GenericTableProps> = (props) => {
         </div>
       );
     }
-    const cellValue = entity[columnKey as keyof object];
-    const cellMetadata = config[columnKey as keyof typeof config];
+    const fieldValue = entity[columnKey as keyof object];
+    const fieldMetadata = config[columnKey as keyof typeof config];
 
-    if (cellMetadata.type === "url") {
+    if (isUrl(fieldMetadata.type)) {
       return (
-        <Link isExternal href={cellValue}>
-          {cellValue}
+        <Link isExternal href={fieldValue}>
+          {fieldValue}
         </Link>
       );
     }
 
-    if (columnKey === "salary") {
-      return USDollarFormater(cellValue);
+    if (isMoney(fieldMetadata.type)) {
+      return USDollarFormater(fieldValue);
     }
 
-    if (cellMetadata.type === "Date" && typeof cellValue === "string") {
+    if (isDate(fieldMetadata.type)) {
       return (
         <DatePicker
           aria-label={`${columnKey}_${ariaLabel}`}
@@ -108,12 +117,12 @@ export const GenericTable: FC<GenericTableProps> = (props) => {
           className="max-w-xs"
           hideTimeZone
           showMonthAndYearPickers
-          defaultValue={DateFormat(cellValue)}
+          defaultValue={DateFormat(fieldValue)}
         />
       );
     }
 
-    return cellValue;
+    return fieldValue;
   }, []);
 
   return (
