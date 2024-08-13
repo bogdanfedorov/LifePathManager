@@ -1,68 +1,45 @@
-import { LinksList } from "@/components/LinksList";
-import { siteConfig } from "@/config/site";
+"use client";
+import { MetaLinks, pmlToMetaLinks } from "@/feature/MetaLinks";
 import { Accordion, AccordionItem } from "@nextui-org/accordion";
+import { Link } from "@nextui-org/link";
+import { FC } from "react";
+import { devPml } from "./dev";
+import { Button } from "@nextui-org/button";
 
-export default function LinksPage() {
+const LinksList: FC<{ config: MetaLinks }> = ({ config }) => {
   return (
-    <Accordion>
-      <AccordionItem key="about_me" title="About me">
-        <LinksList links={siteConfig.links} />
-      </AccordionItem>
-      <AccordionItem key="code_style" title="Code Style">
-        <Accordion>
-          <AccordionItem key="code_style_biome" title="Biome">
-            <LinksList
-              links={{
-                getting: {
-                  title: "Get started",
-                  url: "https://biomejs.dev/guides/getting-started/",
-                },
-              }}
-            />
-          </AccordionItem>
-        </Accordion>
-      </AccordionItem>
-      <AccordionItem key="typescript" title="Typescript">
-        <LinksList
-          links={{
-            playground: {
-              title: "Playground",
-              url: "https://www.typescriptlang.org/play/?#code/Q",
-            },
-            constructorAssigment: {
-              title:
-                "TypeScript Constructor Assignment: public and private Keywords",
-              url: "https://kendaleiv.com/typescript-constructor-assignment-public-and-private-keywords/",
-            },
-          }}
-        />
-      </AccordionItem>
-      <AccordionItem key="front-end" title="Fron-end">
-        <Accordion>
-          <AccordionItem key="components_libs" title="Components libs">
-            <Accordion>
-              <AccordionItem title="NextUI">
-                <LinksList
-                  links={{
-                    mainPage: {
-                      title: "Next UI",
-                      url: "https://nextui.org/",
-                    },
-                    docs: {
-                      title: "Docs",
-                      url: "https://nextui.org/docs/guide/introduction",
-                    },
-                    input: {
-                      title: "Input",
-                      url: "https://nextui.org/docs/components/input",
-                    },
-                  }}
-                />
-              </AccordionItem>
-            </Accordion>
-          </AccordionItem>
-        </Accordion>
+    <Accordion className="border-l border-white">
+      <AccordionItem title={config.title} key={config.key}>
+        {config.items &&
+          config.items.map((item) => (
+            <LinksList key={item.key} config={item} />
+          ))}
+        {config.links && (
+          <div className="flex flex-col gap-2">
+            {config.links.map((link) => {
+              console.log(link);
+              return (
+                <Button
+                  as={Link}
+                  href={link.url}
+                  key={link.key}
+                  isExternal
+                  showAnchorIcon
+                  color="primary"
+                >
+                  {link.title}
+                </Button>
+              );
+            })}
+          </div>
+        )}
       </AccordionItem>
     </Accordion>
   );
+};
+
+export default function LinksPage() {
+  const config = pmlToMetaLinks(devPml);
+
+  return <LinksList config={config}></LinksList>;
 }
